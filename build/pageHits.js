@@ -8,5 +8,5 @@ request.onreadystatechange = function(){
 	console.log(" Error")
 	}
 }
-request.open("GET", "https://k9ew9tt6yj.execute-api.us-east-1.amazonaws.com/prod/hitCounter_test", true)
+request.open("GET", "https://zzjy0wcsm3.execute-api.us-east-1.amazonaws.com/Prod/hitCount", true)
 request.send()
