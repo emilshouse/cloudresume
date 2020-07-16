@@ -13,11 +13,7 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.EMILS_AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}
-      
+    
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
         - uses: actions/checkout@v2
@@ -25,14 +21,27 @@ jobs:
     # Runs a single command using the runners shell
         - name: Run a one-line script
           run: echo S3 update run starting!
-          
-        - name: Deploy
-          uses: reggionick/s3-deploy@v1
+        
+        - name: Run S3 sync
+        - uses: jakejarvis/s3-sync-action@master
           with:
-            folder: build
-            bucket: ${{ secrets.EMILS_S3_BUCKET }}
-            dist-id: ${{ secrets.EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
-
+            args: --follow-symlinks --delete
+          env:
+            AWS_S3_BUCKET: ${{ secrets.EMILS_S3_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}   # optional: defaults to us-east-1
+            SOURCE_DIR: 'build'      # optional: defaults to entire repository
+            
+        - name: invalidate CloudFront
+          uses: chetan/invalidate-cloudfront-action@master
+          env:
+            PATHS: /index.html /pageHits.js
+            AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}
+            DISTRIBUTION: ${{ EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            
     # Runs a set of commands using the runners shell
         - name: Run a multi-line script
           run: |
