@@ -33,12 +33,12 @@ jobs:
             AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}   # optional: defaults to us-east-1
             SOURCE_DIR: 'build'      # optional: defaults to entire repository
             
-        - name: invalidate CloudFront
+        - name: invalidate
           uses: chetan/invalidate-cloudfront-action@master
           env:
-            PATHS: /index.html /pageHits.js
-            AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}
             DISTRIBUTION: ${{ EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
+            PATHS: '/index.html /pageHits.js'
+            AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}
             AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             
