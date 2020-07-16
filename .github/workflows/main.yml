@@ -16,12 +16,9 @@ jobs:
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@master
           
-    # Runs a single command using the runners shell
-        - name: Run a one-line script
-          run: echo S3 update run starting!
-        
+    # Runs a single command using the runners shell       
         - name: Run S3 sync
           uses: jakejarvis/s3-sync-action@master
           with:
@@ -47,4 +44,3 @@ jobs:
           run: |
             echo S3 bucket update run complete!
             echo End of job.
-          
