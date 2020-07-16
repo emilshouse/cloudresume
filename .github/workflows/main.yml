@@ -36,7 +36,7 @@ jobs:
         - name: invalidate
           uses: chetan/invalidate-cloudfront-action@master
           env:
-            DISTRIBUTION: ${{ EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
+            DISTRIBUTION: ${{ secrets.EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
             PATHS: '/index.html /pageHits.js'
             AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}
             AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
