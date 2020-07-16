@@ -23,7 +23,7 @@ jobs:
           run: echo S3 update run starting!
         
         - name: Run S3 sync
-        - uses: jakejarvis/s3-sync-action@master
+          uses: jakejarvis/s3-sync-action@master
           with:
             args: --follow-symlinks --delete
           env:
