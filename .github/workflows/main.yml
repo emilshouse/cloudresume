@@ -22,7 +22,7 @@ jobs:
         - name: Run S3 sync
           uses: jakejarvis/s3-sync-action@master
           with:
-            args: --follow-symlinks --delete
+            args: --follow-symlinks
           env:
             AWS_S3_BUCKET: ${{ secrets.EMILS_S3_BUCKET }}
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
