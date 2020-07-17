@@ -13,37 +13,32 @@ jobs:
     name: Upload to Amazon S3
     runs-on: ubuntu-latest
     
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-        - uses: actions/checkout@v2
-          
-    # Runs a single command using the runners shell       
-        - name: Configure AWS credentials
-          if: github.ref == 'refs/heads/master'
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ secrets.AWS_REGION }}
+    - name: Checkout
+      uses: actions/checkout@v2
 
-        - name: Deploy to S3
-          if: github.ref == 'refs/heads/master'
-          shell: bash
-          run: aws s3 sync ./build/ s3://$AWS_S3_BUCKET --follow-symlinks
-          env:
-            AWS_S3_BUCKET: ${{ secrets.EMILS_S3_BUCKET }}
+    - name: Configure AWS credentials from Test account
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Copy files to the website with the AWS CLI
+      run: |
+        aws s3 sync ./build/ s3://emil-cloud-resume
                 
-        - name: invalidate
-          uses: chetan/invalidate-cloudfront-action@master
-          env:
-            DISTRIBUTION: ${{ secrets.EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
-            PATHS: '/index.html /pageHits.js'
-            AWS_REGION: ${{ secrets.AWS_REGION }}
-            AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: invalidate
+      uses: chetan/invalidate-cloudfront-action@master
+      env:
+        DISTRIBUTION: ${{ secrets.EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
+        PATHS: '/index.html /pageHits.js'
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             
     # Runs a set of commands using the runners shell
-        - name: Run a multi-line script
-          run: |
-            echo S3 bucket update run complete!
-            echo End of job.
+    - name: Run a multi-line script
+      run: |
+        echo S3 bucket update run complete!
+        echo End of job.
