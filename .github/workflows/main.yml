@@ -1,46 +1,37 @@
-# This is a basic workflow to help you get started with Actions
-name: CI-CloudResumeFrontEnd
+name: Upload Webpages
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  deploy:
+    name: Upload to Amazon S3
     runs-on: ubuntu-latest
-    
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
     steps:
-        - uses: actions/checkout@master
-          
-    # Runs a single command using the runners shell       
-        - name: Run S3 sync
-          uses: jakejarvis/s3-sync-action@master
-          with:
-            args: --follow-symlinks
-          env:
-            AWS_S3_BUCKET: ${{ secrets.EMILS_S3_BUCKET }}
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_REGION: ${{ secrets.AWS_REGION }}   # optional: defaults to us-east-1
-            SOURCE_DIR: 'build'      # optional: defaults to entire repository
-            
-        - name: invalidate
-          uses: chetan/invalidate-cloudfront-action@master
-          env:
-            DISTRIBUTION: ${{ secrets.EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
-            PATHS: '/index.html /pageHits.js'
-            AWS_REGION: ${{ secrets.EMILS_AWS_DEFAULT_REGION }}
-            AWS_ACCESS_KEY_ID: ${{ secrets.EMILS_AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            
-    # Runs a set of commands using the runners shell
-        - name: Run a multi-line script
-          run: |
-            echo S3 bucket update run complete!
-            echo End of job.
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Copy files to the test website with the AWS CLI
+      run: |
+        aws s3 sync ./build/ s3://emil-cloud-resume
+
+    - name: invalidate
+      uses: chetan/invalidate-cloudfront-action@master
+      env:
+        DISTRIBUTION: ${{ secrets.EMILS_CLOUDFRONT_DISTRIBUTION_ID }}
+        PATHS: '/index.html /pageHits.js'
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
